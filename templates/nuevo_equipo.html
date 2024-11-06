@@ -1,0 +1,56 @@
+{% extends "template_base.html" %}
+
+{% block title %}Nuevo Equipo{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Agregar Nuevo Equipo</h1>
+<form method="POST" action="">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.nombre.label(class="form-label") }}
+        {{ form.nombre(class="form-control") }}
+        {% for error in form.nombre.errors %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <div class="form-group">
+        {{ form.modelo_id.label(class="form-label") }}
+        {{ form.modelo_id(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.categoria_id.label(class="form-label") }}
+        {{ form.categoria_id(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.marca_id.label(class="form-label") }}
+        {{ form.marca_id(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.costo.label(class="form-label") }}
+        {{ form.costo(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.stock_id.label(class="form-label") }}
+        {{ form.stock_id(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.caracteristicas.label(class="form-label") }}
+        {{ form.caracteristicas(class="form-control") }}
+    </div>
+
+    <div class="form-group">
+        {{ form.accesorios.label(class="form-label") }}
+        {{ form.accesorios(class="form-control") }}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Agregar</button>
+    <a href="{{ url_for('listar_equipos') }}" class="btn btn-secondary">Cancelar</a>
+</form>
+{% endblock %}
+
