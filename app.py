@@ -31,14 +31,12 @@ from models import User, Equipo, Modelo, Marca, Categoria, Stock, Caracteristica
 from views import register_bp
 register_bp(app)  # Registrar los Blueprints
 
-# Crear usuario administrador al inicializar la base de datos si no existe
-@app.before_first_request
-def create_admin():
-    if not User.query.filter_by(username="admin").first():
-        admin = User(username="admin", password_hash=generate_password_hash("admin_password"), is_admin=True)
-        db.session.add(admin)
-        db.session.commit()
-        print("Usuario administrador creado con éxito.")
-
+# Crear usuario administrador al iniciar la aplicación si no existe
 if __name__ == '__main__':
+    with app.app_context():
+        if not User.query.filter_by(username="admin").first():
+            admin = User(username="admin", password_hash=generate_password_hash("admin_password"), is_admin=True)
+            db.session.add(admin)
+            db.session.commit()
+            print("Usuario administrador creado con éxito.")
     app.run(debug=True)
