@@ -6,12 +6,13 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_marshmallow import Marshmallow
 from werkzeug.security import generate_password_hash
+from flask_cors import CORS
 
 # Cargar variables de entorno
 load_dotenv()
 
 app = Flask(__name__)
-
+CORS(app)
 # Configuración de la base de datos
 app.config['SQLALCHEMY_DATABASE_URI'] = (
     f"mysql+pymysql://{os.getenv('MYSQL_USER')}:{os.getenv('MYSQL_PASSWORD')}@db/{os.getenv('MYSQL_DATABASE')}"
@@ -34,9 +35,19 @@ register_bp(app)  # Registrar los Blueprints
 # Crear usuario administrador al iniciar la aplicación si no existe
 if __name__ == '__main__':
     with app.app_context():
-        if not User.query.filter_by(username="admin").first():
-            admin = User(username="admin", password_hash=generate_password_hash("admin_password"), is_admin=True)
-            db.session.add(admin)
-            db.session.commit()
-            print("Usuario administrador creado con éxito.")
+        try:
+            if not User.query.filter_by(username="admin").first():
+                admin = User(
+                    username="admin",
+                    password_hash=generate_password_hash("admin_password"), 
+                    is_admin=True
+                )
+                db.session.add(admin)
+                db.session.commit()
+                print("Usuario administrador creado con éxito.")
+            else:
+                print("Usuario administrador ya existe.")
+        except Exception as e:
+            print(f"Error al crear el usuario administrador: {e}")
+    
     app.run(debug=True)
