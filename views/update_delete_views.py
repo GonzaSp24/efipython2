@@ -141,3 +141,46 @@ def update_proveedor(id):
     proveedor.contacto = data.get('contacto', proveedor.contacto)
     db.session.commit()
     return jsonify({"Mensaje": "Proveedor actualizado correctamente", "Proveedor": proveedor.to_dict()}), 200
+
+@update_delete_bp.route('/users/<int:id>', methods=['OPTIONS'])
+@jwt_required()
+def actualizar_usuario(id):
+    additional_data = get_jwt()
+
+    # Verificar si el usuario actual es administrador
+    if not additional_data.get('administrador'):
+        return jsonify({"Mensaje": "Solo los administradores pueden modificar usuarios"}), 403
+
+    usuario = User.query.get_or_404(id)
+
+    # Obtener datos del request
+    data = request.get_json()
+    usuario.username = data.get('usuario', usuario.username)
+
+    # Si se proporciona una nueva contraseña, se cifra antes de guardar
+    if 'password' in data:
+        usuario.password_hash = generate_password_hash(data['password'])
+    usuario.is_admin = data.get('is_admin', usuario.is_admin)
+
+    db.session.commit()
+    return jsonify({"Mensaje": "Usuario actualizado correctamente", "Usuario": UserSchema().dump(usuario)}), 200
+
+@update_delete_bp.route('/users/<int:id>', methods=['DELETE'])
+@jwt_required()
+def eliminar_usuario(id):
+    print(f"Solicitud de eliminación recibida para el usuario con id: {id}")
+    additional_data = get_jwt()
+
+    if not additional_data.get('administrador'):
+        return jsonify({"Mensaje": "Solo los administradores pueden eliminar usuarios"}), 403
+
+    usuario = User.query.get(id)
+    if not usuario:
+        return jsonify({"Mensaje": "Usuario no encontrado"}), 404
+
+    usuario.eliminado = True
+    db.session.commit()
+
+    return jsonify({"Mensaje": "Usuario eliminado correctamente"}), 200
+
+# Endpoint para actualizar un User (solo administradores)

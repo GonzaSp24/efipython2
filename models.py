@@ -144,7 +144,7 @@ class User(db.Model):
     username = db.Column(db.String(50), nullable=False)
     password_hash = db.Column(db.String(300), nullable=False)
     is_admin = db.Column(db.Boolean)
-
+    eliminado = db.Column(db.Boolean, default=False)  # Campo para soft delete
     def to_dict(self):
         return {
             "id": self.id,
