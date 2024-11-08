@@ -57,8 +57,34 @@ def crear_usuario():
     )
     db.session.add(nuevo_usuario)
     db.session.commit()
-    
+
     return jsonify({
         "Mensaje": "Usuario creado correctamente",
         "Usuario": UserSchema().dump(nuevo_usuario)
     }), 201
+
+# Endpoint para Obtener Usuarios (solo administradores)
+@auth_bp.route('/users', methods=['GET'])
+@jwt_required()
+def obtener_usuarios():
+    additional_data = get_jwt()
+    
+    # Verificar si el usuario actual es administrador
+    if not additional_data.get('administrador'):
+        print("Acceso denegado: El usuario no es administrador")
+        return jsonify({"Mensaje": "Solo los administradores pueden ver usuarios"}), 403
+
+    try:
+        print("Obteniendo lista de usuarios...")
+        usuarios = User.query.all()
+        if not usuarios:
+            print("No se encontraron usuarios en la base de datos")
+            return jsonify({"Mensaje": "No se encontraron usuarios"}), 404
+
+        usuarios_data = UserSchema(many=True).dump(usuarios)
+        print("Usuarios encontrados:", usuarios_data)
+        return jsonify(usuarios_data), 200
+
+    except Exception as e:
+        print("Error al obtener los usuarios:", e)
+        return jsonify({"Mensaje": "Error al obtener los usuarios"}), 400
